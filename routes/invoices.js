@@ -47,7 +47,7 @@ Router.post('/', async (req,res,next) =>{
     return res.json(results.rows[0])
 })
 
-Router.patch("/:id", async (req,res,next) => {
+Router.put("/:id", async (req,res,next) => {
     try{
         let {id,comp_code,amt,paid,add_date,paid_date} = req.body;
         const result = await db.query(
@@ -57,6 +57,9 @@ Router.patch("/:id", async (req,res,next) => {
             RETURNING comp_code, amt, paid, add_date, paid_date`,
             [comp_code,amt,paid,add_date,paid_date,req.params.id]
         )
+        if(result.rows.length === 0){
+            throw new ExpressError(`Invoice cant be found with the id of ${req.body.id}`,404)
+        }
         return res.json({"invoices": result.rows[0]})
     }
     catch(e){
